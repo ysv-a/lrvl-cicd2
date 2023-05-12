@@ -21,7 +21,7 @@ jobs:
           ssh root@82.148.16.149 "cd /var/www/app/ && sudo -u www-data git pull"
       - name: Init the app
         run: |
-          ssh $SSH_USERNAME@$SSH_HOST "chmod u+x /var/www/app/bin/deploy && pushd /var/www/app && ./bin/deploy && popd"
+          ssh $SSH_USERNAME@$SSH_HOST "cd /var/www/app/ && composer install --no-interaction --prefer-dist --optimize-autoloader && php artisan migrate && php artisan db:seed && npm ci && npm run build"
         env:
          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
          SSH_HOST: ${{ secrets.SSH_HOST }}
