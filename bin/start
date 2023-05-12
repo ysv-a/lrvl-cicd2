@@ -4,6 +4,10 @@ export COMPOSER_ALLOW_SUPERUSER=1
 
 composer install --no-interaction --prefer-dist --optimize-autoloader
 
+npm ci
+
+npm run build
+
 cp .env.example .env
 
 php artisan key:generate
