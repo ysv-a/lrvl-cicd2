@@ -1,0 +1,36 @@
+name: Create review app
+
+on:
+  pull_request:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+      - name: Adding Known Hosts
+        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+      - name: Copy files to the server
+        run: |
+          rsync -a -r --progress --human-readable --delete \
+          --exclude-from '.gitignore' \
+          . root@82.148.16.149:/var/www/testing/${{ github.head_ref }}/
+      - name: Init the app
+        run: |
+          ssh $SSH_USERNAME@$SSH_HOST "chmod u+x /var/www/testing/${{ github.head_ref }}/bin/start && pushd /var/www/testing/${{ github.head_ref }} && ./bin/start && popd && sudo chown www-data:www-data /var/www/testing/${{ github.head_ref }} -R && sudo chmod g+w /var/www/testing/${{ github.head_ref }} -R"
+        env:
+         SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+         SSH_HOST: ${{ secrets.SSH_HOST }}
+      - name: Post review app URL
+        if: success()
+        uses: mshick/add-pr-comment@v1
+        with:
+          message: Created review app at ${{ env.REVIEW_APP_URL }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          REVIEW_APP_URL: http://${{ github.head_ref }}.${{ secrets.APP_TEST_HOST }}/

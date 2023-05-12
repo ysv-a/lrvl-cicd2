@@ -2,8 +2,6 @@
 
 export COMPOSER_ALLOW_SUPERUSER=1
 
-source ~/.nvm/nvm.sh
-
 composer install --no-interaction --prefer-dist --optimize-autoloader
 
 php artisan migrate
