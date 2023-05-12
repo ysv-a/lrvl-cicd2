@@ -28,7 +28,7 @@ jobs:
          SSH_HOST: ${{ secrets.SSH_HOST }}
       - name: Post review app URL
         if: success()
-        uses: mshick/add-pr-comment@v1
+        uses: mshick/add-pr-comment@v2
         with:
           message: Created review app at ${{ env.REVIEW_APP_URL }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
